@@ -1,0 +1,33 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <mpi.h>
+#include <limits.h>
+#define ARRAY_SIZE 1000 
+int main(int argc, char** argv)
+{
+int rank, size, i;
+int local_min = INT_MAX;
+int global_min;
+int array[ARRAY_SIZE];
+MPI_Init(NULL, NULL);
+MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+MPI_Comm_size(MPI_COMM_WORLD, &size);
+for (i = 0; i < ARRAY_SIZE; i++)
+{
+array[i] = rand();
+}
+for (i = 0; i < ARRAY_SIZE / size; i++)
+{
+if (array[i] < local_min)
+{
+local_min = array[i];
+}
+}
+MPI_Reduce(&local_min, &global_min, 1, MPI_INT, MPI_MIN, 0,MPI_COMM_WORLD);
+if (rank == 0)
+{
+printf("Global minimum value = %d\n", global_min);
+}
+MPI_Finalize();
+return 0;
+}
